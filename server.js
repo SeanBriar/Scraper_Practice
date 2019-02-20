@@ -1,17 +1,17 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
-const jsonframe = require("jsonframe-cheerio")
 
-// Holds data that is being scraped
 
-// Make a request via axios to grab the HTML elements
+//Make a request via axios to grab the HTML elements
 //Main page scrape
 axios.get("http://feministing.com/").then((response) => {
+  //variables
   let title
   let link
   let content
   let products = []
   let productsJSON = {}
+
   // Load the HTML into cheerio and save it to a variable ($ for cheerio)
   let $ = cheerio.load(response.data);
 
@@ -22,24 +22,32 @@ axios.get("http://feministing.com/").then((response) => {
     title = $(element).children("header").find("a").text()
     link = $(element).find("a").attr("href");
     content = $(element).children().find("div.show-for-small-only").text()
-});
+  });
 
 
 
     //Secondary page scrape
     axios.get("https://www.cafepress.com/feministingstore/8351380").then((response)=>{
+      //redefine $ for new page
       let $ = cheerio.load(response.data)
 
+      // Select each element in the HTML body
       $("td").children("div.shopResultImage").each((i, element)=>{
+        //variables for data
         let productLink = $(element).find("a").attr("href")
         let productImage = $(element).find("img").attr("src")
 
+        //push data to empty array
         products.push({
-          productLink: productLink,
-          productImage: productImage,
-          title: title,
-          link: link,
-          content: content
+          mainPage: {
+            title: title,
+            link: link,
+            content: content
+          },
+          shop: {
+            productLink: productLink,
+            productImage: productImage
+          }
         })
       })
 
@@ -48,10 +56,6 @@ axios.get("http://feministing.com/").then((response) => {
 
 
     console.log(productsJSON);
-    // console.log(resultsJSON);
-    // finalObj = Object.assign(productsJSON, resultsJSON)
-    // console.log(finalObj);
-
   })
 
 });
