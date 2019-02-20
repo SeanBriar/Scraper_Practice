@@ -2,13 +2,15 @@ const cheerio = require("cheerio");
 const axios = require("axios");
 
 // Holds data that is being scraped
-let results = []
-let products = []
 
 // Make a request via axios to grab the HTML elements
 //Main page scrape
 axios.get("http://feministing.com/").then((response) => {
+  let results = []
+  let products = []
   let finalObj = {}
+  let resultsJSON = []
+  let productsJSON = {}
   // Load the HTML into cheerio and save it to a variable ($ for cheerio)
   let $ = cheerio.load(response.data);
 
@@ -28,10 +30,8 @@ axios.get("http://feministing.com/").then((response) => {
     });
   });
 
-  //Convert data to JSON object
+  resultsJSON = JSON.stringify(results, null, 2)
 
-  let resultsJSON = JSON.stringify(results, null, 2)
-  console.log(resultsJSON);
 
 
   //Secondary page scrape
@@ -48,8 +48,11 @@ axios.get("http://feministing.com/").then((response) => {
       })
     })
 
-    let productsJSON = JSON.stringify(products, null, 2)
-    console.log(productsJSON)
+    //Convert data to JSON object
 
+    productsJSON = JSON.stringify(products, null, 2)
+    finalObj = Object.assign({productsJSON, resultsJSON})
+    console.log(finalObj);
   })
+
 });
